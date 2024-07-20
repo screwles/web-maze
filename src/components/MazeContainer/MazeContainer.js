@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Car from './Car';
-import './Maze.css';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Car from '../Car/Car';
+import MazeGrid from '../MazeGrid/MazeGrid';
+import MazeControls from '../MazeControls/MazeControls';
+import './MazeContainer.css';
 
-const Maze = () => {
+const MazeContainer = () => {
   const size = 50;
-  const [entrance, setEntrance] = useState([0, 1]);
-  const [exit, setExit] = useState([size - 1, size - 2]);
+  const [entrance, setEntrance] = useState([1, 1]);
+  const [exit, setExit] = useState([size - 2, size - 2]);
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1000);
   const [settingEntrance, setSettingEntrance] = useState(false);
@@ -70,39 +72,32 @@ const Maze = () => {
   return (
     <div className="maze-container">
       <h1>Maze</h1>
-      <div className="controls">
-        <button onClick={() => setSettingEntrance(true)}>Set Entrance</button>
-        <button onClick={() => setSettingExit(true)}>Set Exit</button>
-        <button onClick={() => setRunning(!running)}>{running ? 'Stop' : 'Start'}</button>
-        <label>
-          Speed:
-          <input
-            type="number"
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            min="100"
-            step="100"
-          />
-        </label>
-      </div>
-      <div className="maze-grid">
-        {mazeRef.current.map((row, rowIndex) => (
-          <div key={rowIndex} className="maze-row">
-            {row.map((cell, colIndex) => (
-              <div
-                key={colIndex}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-                className={`maze-cell ${cell.isWall ? 'wall' : ''} ${cell.isEntrance ? 'entrance' : ''} ${cell.isExit ? 'exit' : ''}`}
-              />
-            ))}
-          </div>
-        ))}
+      <MazeControls
+        setSettingEntrance={setSettingEntrance}
+        setSettingExit={setSettingExit}
+        running={running}
+        setRunning={setRunning}
+        speed={speed}
+        setSpeed={setSpeed}
+      />
+      <div style={{ position: 'relative' }}>
+        <MazeGrid
+          grid={mazeRef.current}
+          handleCellClick={handleCellClick}
+        />
         {mazeRef.current.length > 0 && (
-          <Car grid={mazeRef.current} entrance={entrance} exit={exit} running={running} speed={speed} />
+          <Car 
+            grid={mazeRef.current} 
+            entrance={entrance} 
+            exit={exit} 
+            running={running} 
+            speed={speed} 
+            cellSize={20} 
+          />
         )}
       </div>
     </div>
   );
 };
 
-export default Maze;
+export default MazeContainer;

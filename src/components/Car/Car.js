@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import './Car.css';
 
-const Car = ({ grid, entrance, exit, running, speed }) => {
+const Car = ({ grid, entrance, exit, running, speed, cellSize }) => {
   const [position, setPosition] = useState(entrance);
   const [direction, setDirection] = useState('right');
   const [path, setPath] = useState([entrance]);
@@ -43,32 +43,21 @@ const Car = ({ grid, entrance, exit, running, speed }) => {
         return;
       }
 
-      console.log('Current Position:', position);
-      console.log('Current Direction:', direction);
-
-      // Try to turn right first
       const rightDirection = directions[(directions.indexOf(direction) + 1) % 4];
       let nextPos = getNextPosition(position, rightDirection);
-      console.log('Attempting to move right:', nextPos);
 
       if (isMovable(nextPos)) {
-        console.log('Moving right');
         setDirection(rightDirection);
         setPosition(nextPos);
         setPath((prevPath) => [...prevPath, nextPos]);
       } else {
-        // If can't move right, try moving forward
         nextPos = getNextPosition(position, direction);
-        console.log('Attempting to move forward:', nextPos);
 
         if (isMovable(nextPos)) {
-          console.log('Moving forward');
           setPosition(nextPos);
           setPath((prevPath) => [...prevPath, nextPos]);
         } else {
-          // If can't move forward, turn left
           const leftDirection = directions[(directions.indexOf(direction) + 3) % 4];
-          console.log('Turning left to:', leftDirection);
           setDirection(leftDirection);
         }
       }
@@ -77,7 +66,7 @@ const Car = ({ grid, entrance, exit, running, speed }) => {
     return () => clearInterval(interval);
   }, [position, direction, grid, exit, running, speed, getNextPosition, isMovable, directions]);
 
-  const pathPoints = path.map(([x, y]) => `${y * 20 + 10},${x * 20 + 10}`).join(' ');
+  const pathPoints = path.map(([x, y]) => `${y * cellSize + cellSize/2},${x * cellSize + cellSize/2}`).join(' ');
 
   const rotationAngle = {
     right: 0,
@@ -92,21 +81,24 @@ const Car = ({ grid, entrance, exit, running, speed }) => {
         className="car"
         viewBox="0 0 100 100"
         style={{
-          top: position[0] * 20,
-          left: position[1] * 20,
+          position: 'absolute',
+          top: `${position[0] * cellSize}px`,
+          left: `${position[1] * cellSize}px`,
+          width: `${cellSize}px`,
+          height: `${cellSize}px`,
           transform: `rotate(${rotationAngle}deg)`,
           transition: `top ${speed / 1000}s, left ${speed / 1000}s, transform ${speed / 1000}s`,
         }}
       >
-        <polygon points="50,0 0,100 100,100" fill="blue" />
+        <polygon points="50,0 0,100 100,100" fill="lightblue" />
       </svg>
       <svg
         style={{
           position: 'absolute',
           top: 0,
           left: 0,
-          width: `${grid[0].length * 20}px`,
-          height: `${grid.length * 20}px`,
+          width: '100%',
+          height: '100%',
           pointerEvents: 'none',
         }}
       >
